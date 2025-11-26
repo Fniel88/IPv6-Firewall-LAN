@@ -44,20 +44,20 @@ Los enlaces entre sedes usan prefijos /64 dedicados (ej: FF01, FF02, FF03, FF04)
 
 Estos son los elementos fundamentales que garantizan que este proyecto funcione igual que en una red real:
 
-✔ Activar obligatoriamente IPv6 Routing en los routers Cisco
+- Activar obligatoriamente IPv6 Routing en los routers Cisco
 ipv6 unicast-routing
 
-✔ Definir Router-ID único por sede en OSPFv3
+- Definir Router-ID único por sede en OSPFv3
 
 Sin esto no forma vecinos.
 
-✔ Habilitar DHCPv6 Server + Router Advertisements en pfSense
+- Habilitar DHCPv6 Server + Router Advertisements en pfSense
 
 RA Mode: Managed o Assisted
 
 Prefijos de cada VLAN definidos correctamente
 
-✔ Ajustes esenciales en pfSense
+- Ajustes esenciales en pfSense
 
 Habilitar Allow IPv6
 
@@ -67,13 +67,13 @@ Reglas de LAN deben permitir tráfico IPv6
 
 Reglas de WAN deben permitir ICMPv6 para diagnóstico
 
-✔ DNS Resolver con Host Override
+- DNS Resolver con Host Override
 
 Para el dominio:
 
 mintic.localdomain → 2001:db8:acad:FF04::2
 
-✔ Nginx accesible solo desde VLAN permitidas
+- Nginx accesible solo desde VLAN permitidas
 
 Esto exige reglas específicas en pfSense, ejemplo:
 
@@ -81,13 +81,13 @@ Permitir HTTP desde MINTIC
 
 Denegar tráfico desde MINAGRICULTURA o MINEXTERIOR según la política
 
-✔ Tabla de rutas IPv6 verificable en todas las sedes
+- Tabla de rutas IPv6 verificable en todas las sedes
 
 Comando clave:
 
 show ipv6 route
 
-✔ Conectividad extremo a extremo
+- Conectividad extremo a extremo
 
 Ejemplos:
 
