@@ -18,9 +18,14 @@ Esto permite comprender cómo se interconectan sedes, cómo se distribuyen servi
 
 - GNS3:	Simuldaor graficos de redes y de codigo abierto.
 - Routers Cisco (IOS) : Routers Virtuales/Fisicos reconocidos a nivel mundial por su compatibilidad y facilidad de uso. (Se adjuntan para su descarga)
+  - Versiones:
+  - Cisco IOS Software, Linux Software (I86BI_LINUX-ADVENTERPRISEK9-M), Version 15.5(2)T, 
 - pfSense: Firewall Fisico/Virtual amigable y completo en su version Community (Codigo abierto)
+  - pfsense 2.7.2-RELESASE
 - Ubuntu Server: Servidor multiproposito con OS Ubuntu que permite el desplieguie de diferentes aplicativos.
+  - Ubuntu Server 20.04.6 LTS
 - Linux Mint: Equipos Fisicos/Virtuales de bajo consumo.
+  - Version: Linux Mint 22.2 xfce
 - PDF + TXT : Documentos incluidos con la documentacion del proyecto y codigo para su ejecuccion.
 
 3. Topología general
