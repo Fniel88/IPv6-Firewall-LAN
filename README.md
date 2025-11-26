@@ -155,7 +155,7 @@ Ver DHCPv6 en pfSense
 Logs DHCPv6
 Lease activo para cada cliente en el pfsense
 
-🧾 8. Conclusiones (resumen técnico)
+8. Conclusiones
 
 El enrutamiento IPv6 se propagó correctamente entre sedes mediante OSPFv3, validado en todas las tablas de rutas.
 pfSense demostró ser una solución completa para DHCPv6, RA, DNS y control por VLAN.
@@ -164,7 +164,3 @@ El servidor nginx fue accesible solo desde las VLAN habilitadas, evidenciando el
 Toda la infraestructura es escalable y permite añadir nuevas sedes o servicios sin alterar la arquitectura base.
 
 Gracias por revisar ;)
-
-Segmentación Zero Trust
-
-VPN entre sedes con WireGuard
