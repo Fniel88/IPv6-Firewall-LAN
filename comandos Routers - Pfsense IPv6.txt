@@ -1,0 +1,375 @@
+
+CONFIGURACION DEL PFSENSE EN CADA SEDE:
+CONFIGURACION DEL PFSENSE EN CADA SEDE:
+CONFIGURACION DEL PFSENSE EN CADA SEDE:
+
+Router BARRANQUILLA → 2001:db8:acad:1::1/64
+
+pfSense-BQ (interfaz WAN - em0) → 2001:db8:acad:1::2/64
+
+pfSense-BQ (interfaz LAN - em2) → conectada a Linux Mint-1
+
+Entra por consola o interfaz web (https://192.168.1.1):
+
+em0 (WAN) → conectada al router
+
+em2 (LAN) → conectada al Linux Mint
+
+Ve a Interfaces → WAN.
+
+Activa IPv6 Configuration Type → “Static IPv6”.
+
+Dirección IPv6:
+
+2001:db8:acad:1::2
+Prefix: 64
+
+Guardar y aplicar
+
+Ve a Services → DHCPv6 Server & RA → LAN.
+
+Marca Enable DHCPv6 Server on LAN Interface.
+
+En Range, define:
+
+From: 2001:db8:acad:2::10
+To:   2001:db8:acad:2::50
+
+Configurar Router Advertisements (RA)
+
+En la misma sección, pestaña Router Advertisements.
+
+En Router mode, selecciona Managed (si deseas que el cliente obtenga IP solo vía DHCPv6) o Assisted (para combinar SLAAC + DHCPv6).
+
+Paso 2. Activar el reenvío de tráfico IPv6
+
+En pfSense, entra a:
+
+System → Advanced → Networking
+
+Activa la opción:
+
+Allow IPv6 (o “Allow IPv6 traffic”)
+Enable IPv6 forwarding
+
+Guarda y aplica los cambios.
+
+Esto permite que pfSense enrute entre LAN y WAN para IPv6 (por defecto solo hace NAT IPv4, no reenvía IPv6 a menos que se habilite).
+
+Configurar reglas de firewall IPv6 en la LAN
+
+Ve a:
+
+Firewall → Rules → LAN
+
+
+Agrega una nueva regla:
+
+Action: Pass
+
+Protocol: IPv6 (o Any)
+
+Source: LAN net
+
+Destination: any
+
+Description: “Allow IPv6 LAN to any”
+
+Guarda y aplica.
+
+pfSense bloquea IPv6 por firewall si no hay reglas explícitas.
+
+Revisar reglas de salida (WAN)
+
+En:
+
+Firewall → Rules → WAN
+
+Asegúrese de permitir IPv6 ICMP (necesario para ping y descubrimiento de ruta).
+Si no existe, crea una regla:
+
+Action: Pass
+
+Protocol: ICMPv6
+
+Source: any
+
+Destination: WAN address
+
+Description: “Allow ICMPv6 to pfSense WAN”
+
+Guarda y aplica.
+
+CONEXION A HTTP
+CONEXION A HTTP
+CONEXION A HTTP
+
+Clic en Add (flecha hacia arriba, para añadir al inicio).
+
+Action: Pass
+
+Protocol: TCP
+
+Source: any (o la red del cliente)
+
+Destination:  IPv6 de tu servidor
+
+Destination port range: from HTTP (80) to HTTP (80)
+
+Guarda y Apply Changes
+
+Advance -> Routing -> Networking -> Static Routes
+
+Destination: 2001:db8:acad:FF04::/64 -> GW_ciudad
+
+DNS
+DNS
+DNS
+
+Entra a pfSense → Services → DNS Resolver.
+
+Baja hasta la sección Host Overrides y haz clic en Add.
+
+Completa así:
+
+Listen Port: 53
+
+Host: mintic
+
+Domain: localdomain
+
+IP Address: 2001:db8:acad:FF04::2
+
+(Opcional) Description: Servidor web Ubuntu
+
+Guarda y Apply Changes.
+
+3- Linux mint
+
+ping6 2001:db8:acad:2::1          # Gateway LAN pfSense
+ping6 2001:db8:acad:1::2          # Interfaz WAN pfSense
+ping6 2001:db8:acad:1::1          # Router Barranquilla
+
+ROUTERS A LOS MINT
+
+BARRANQUILLA
+
+///////////////////// ROUTER //////////////////////
+
+conf t
+ipv6 router ospf 1
+ router-id 1.1.1.1
+ redistribute static
+exit
+
+conf t
+ipv6 unicast-routing
+interface e0/1
+ description Conexion a pfSense-BQ
+ ipv6 address 2001:db8:acad:1::1/64
+ ipv6 ospf 1 area 0
+ no shutdown
+exi
+
+conf t
+interface e0/0
+ description Conexion a BOGOTA
+ ipv6 address 2001:db8:acad:FF01::2/64
+ ipv6 ospf 1 area 0
+ no shutdown
+end
+wr
+
+show ipv6 interface brief
+show ipv6 route
+
+ipv6 route 2001:db8:acad:2::/64 2001:db8:acad:1::2
+ipv6 route 2001:db8:acad:7::/64 2001:db8:acad:1::2
+ipv6 route 2001:db8:acad:8::/64 2001:db8:acad:1::2
+
+MEDELLIN
+
+///////////////////// ROUTER //////////////////////
+
+conf t
+ipv6 router ospf 1
+ router-id 2.2.2.2
+ redistribute static
+exit
+
+conf t
+ipv6 unicast-routing
+interface e0/1
+ description Conexion a pfSense-MED
+ ipv6 address 2001:db8:acad:3::1/64
+ipv6 ospf 1 area 0
+ no shutdown
+exi
+
+conf t
+interface e0/0
+ description Conexion a BOGOTA
+ ipv6 address 2001:db8:acad:FF02::2/64
+ ipv6 ospf 1 area 0
+ no shutdown
+end
+wr
+
+ipv6 route 2001:db8:acad:4::/64 2001:db8:acad:3::2
+ipv6 route 2001:db8:acad:9::/64 2001:db8:acad:3::2
+ipv6 route 2001:db8:acad:10::/64 2001:db8:acad:3::2
+
+
+CALI
+
+///////////////////// ROUTER //////////////////////
+
+conf t
+ipv6 router ospf 1
+ router-id 3.3.3.3
+ redistribute static
+exit
+
+conf t
+ipv6 unicast-routing
+interface e0/2
+ description Conexion a pfSense-CALI
+ ipv6 address 2001:db8:acad:5::1/64
+ipv6 ospf 1 area 0
+ no shutdown
+exi
+
+conf t
+interface e0/1
+ description Conexion a BOGOTA
+ ipv6 address 2001:db8:acad:FF03::2/64
+ ipv6 ospf 1 area 0
+ no shutdown
+end
+wr
+
+ipv6 route 2001:db8:acad:6::/64 2001:db8:acad:5::2
+ipv6 route 2001:db8:acad:11::/64 2001:db8:acad:5::2
+ipv6 route 2001:db8:acad:12::/64 2001:db8:acad:5::2
+
+BOGOTA
+
+///////////////////// ROUTER //////////////////////
+
+conf t
+ipv6 unicast-routing
+ipv6 router ospf 1
+ router-id 4.4.4.4
+ redistribute static
+exit
+
+conf t
+interface e0/3
+ description Conexion a BARRANQUILLA
+ ipv6 address 2001:db8:acad:FF01::1/64
+ ipv6 ospf 1 area 0
+ no shutdown
+
+interface e0/1
+ description Conexion a MEDELLIN
+ ipv6 address 2001:db8:acad:FF02::1/64
+ ipv6 ospf 1 area 0
+ no shutdown
+
+interface e0/2
+ description Conexion a CALI
+ ipv6 address 2001:db8:acad:FF03::1/64
+ ipv6 ospf 1 area 0
+ no shutdown
+
+conf t
+interface e0/0
+description CONEXION A HTTP
+ ipv6 address 2001:db8:acad:FF04::1/64
+ ipv6 ospf 1 area 0
+
+CONFIGURACION DE SERVIDOR HTTP:
+CONFIGURACION DE SERVIDOR HTTP:
+CONFIGURACION DE SERVIDOR HTTP:
+
+CONECTAR PRIMERO AL NAT DE VMWARE ACTUALIZAR E INTALAR DEPENDENCIAS LUEGO SE PROCEDE CON LA CONFIG:
+
+sudo apt update
+sudo apt install nginx -y
+
+sudo systemctl enable nginx
+sudo systemctl start nginx
+sudo systemctl status nginx
+
+sudo nano /etc/netplan/00-installer-config.yaml
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    ens33:
+      dhcp4: true
+      dhcp6: no
+      addresses:
+        - 2001:db8:acad:FF04::2/64
+      gateway6: 2001:db8:acad:FF04::1
+
+sudo netplan apply
+
+sudo nano /etc/nginx/sites-available/default
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm;
+
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+
+sudo nginx -t
+sudo systemctl restart nginx
+
+sudo ufw allow 80/tcp
+sudo ufw allow from any to any proto tcp port 80
+sudo ufw enable
+sudo ufw status
+
+sudo nano /var/www/html/index.html
+
+PRUEBAS DE CONECTIVIDAD
+PRUEBAS DE CONECTIVIDAD
+PRUEBAS DE CONECTIVIDAD
+
+Desde tu cliente Linux Mint:
+
+curl -6 http://[2001:db8:acad:FF04::2]
+
+DNS LINUX MINT
+DNS LINUX MINT
+DNS LINUX MINT
+
+sudo nano /etc/systemd/resolved.conf
+
+[Resolve]
+DNS= 2001:db8:acad:2::1
+Domains=localdomain
+
+sudo systemctl restart systemd-resolved
+
+sudo rm /etc/resolv.conf
+echo "nameserver 2001:db8:acad:2::1" | sudo tee /etc/resolv.conf
+
+cat /etc/resolv.conf
+
+nameserver 2001:db8:acad:2::1
+
+ping6 mintic.localdomain
+
+mintic.localdomain
+
